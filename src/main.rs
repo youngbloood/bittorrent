@@ -1,4 +1,4 @@
-use serde_json;
+use serde_json::{self, json};
 use std::env;
 
 // Available if you need it!
@@ -14,13 +14,21 @@ fn decode_bencoded_value(encoded_value: &str) -> serde_json::Value {
         let number = number_string.parse::<i64>().unwrap();
         let string = &encoded_value[colon_index + 1..colon_index + 1 + number as usize];
         return serde_json::Value::String(string.to_string());
-    } 
-    if encoded_value.starts_with("i") && encoded_value.ends_with("e"){
-      let number =   encoded_value.trim_end_matches("e");
-      let _number =   number.trim_start_matches("i").parse::<i64>().unwrap();
-      return serde_json::Value::Number(_number.into());
-    } 
-    panic!("Unhandled encoded value: {}", encoded_value)
+    } else if encoded_value.starts_with("i") && encoded_value.ends_with("e") {
+      let number: &str =   encoded_value.trim_start_matches("i").trim_end_matches("e");
+      return serde_json::Value::Number(number.parse::<i64>().unwrap().into());
+    } else if encoded_value.starts_with("l") && encoded_value.ends_with("e") {
+      let content  = &encoded_value[1..encoded_value.len()-1];
+      let povit = content.find(":").unwrap();
+      let length = content[..povit].parse::<usize>().unwrap();
+
+      let first = decode_bencoded_value(&content[..povit+1+length]);
+      let second = decode_bencoded_value(&content[povit+1+length..]);
+
+      return json!([first,second]);
+    } else {
+        panic!("Unhandled encoded value: {}", encoded_value)
+    }
 }
 
 
