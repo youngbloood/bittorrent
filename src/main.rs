@@ -14,10 +14,15 @@ fn decode_bencoded_value(encoded_value: &str) -> serde_json::Value {
         let number = number_string.parse::<i64>().unwrap();
         let string = &encoded_value[colon_index + 1..colon_index + 1 + number as usize];
         return serde_json::Value::String(string.to_string());
-    } else {
-        panic!("Unhandled encoded value: {}", encoded_value)
-    }
+    } 
+    if encoded_value.starts_with("i") && encoded_value.ends_with("e"){
+      let number =   encoded_value.trim_end_matches("e");
+      let _number =   number.trim_start_matches("i").parse::<i64>().unwrap();
+      return serde_json::Value::Number(_number.into());
+    } 
+    panic!("Unhandled encoded value: {}", encoded_value)
 }
+
 
 // Usage: your_bittorrent.sh decode "<encoded_value>"
 fn main() {
