@@ -1,6 +1,5 @@
 use std::env;
-mod decode;
-
+mod parse;
 // Available if you need it!
 // use serde_bencode
 
@@ -11,12 +10,12 @@ fn main() {
 
     if command == "decode" {
         let encoded_value = &args[2];
-        let (_, decoded_value) = decode::decode_list(encoded_value);
-        println!("{}", decoded_value.to_string());
+        let result = parse::Cell::new(encoded_value);
+        println!("result = {:?}", result);
     } else if command == "info" {
         let encoded_value = &args[2];
-        let (_, decoded_value) = decode::decode_list(encoded_value);
-        println!("{}", decoded_value.to_string());
+        let result = parse::Cell::new(encoded_value);
+        println!("result = {:?}", result);
     } else {
         println!("unknown command: {}", args[1])
     }
